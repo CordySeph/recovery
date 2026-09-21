@@ -12,9 +12,25 @@ from typing import List, Dict, Tuple, Optional
 from recovery_engine.config import CHUNK_SIZE, SECTOR_SIZE
 from recovery_engine.i18n import t
 
+def is_admin() -> bool:
+    """
+    Check if the current process has administrative/root privileges.
+    """
+    if sys.platform == "win32":
+        try:
+            import ctypes
+            return ctypes.windll.shell32.IsUserAnAdmin() != 0
+        except Exception:
+            return False
+    else:
+        try:
+            return os.geteuid() == 0
+        except Exception:
+            return False
+
 def get_available_drives(include_virtual: bool = False) -> List[Dict]:
     """
-    Detect available physical drives on macOS or Linux.
+    Detect available physical drives on Windows, macOS, or Linux.
     Returns a list of dicts with disk details.
     """
     drives = []
@@ -83,6 +99,115 @@ def get_available_drives(include_virtual: bool = False) -> List[Dict]:
                     })
         except Exception:
             pass
+    elif sys.platform == "win32":
+        try:
+            import json
+            # 1. Query physical drives via PowerShell CIM
+            ps_cmd = (
+                "Get-CimInstance -ClassName Win32_DiskDrive | "
+                "Select-Object DeviceID, Index, Model, Size, MediaType, InterfaceType | "
+                "ConvertTo-Json"
+            )
+            out = subprocess.check_output(
+                ["powershell", "-NoProfile", "-NonInteractive", "-Command", ps_cmd],
+                stderr=subprocess.DEVNULL,
+                text=True,
+                encoding="utf-8"
+            ).strip()
+            if out:
+                parsed = json.loads(out)
+                if isinstance(parsed, dict):
+                    parsed = [parsed]
+                
+                # Try getting additional bus type details via Get-PhysicalDisk
+                phys_map = {}
+                try:
+                    ps_phys = (
+                        "Get-PhysicalDisk | "
+                        "Select-Object DeviceId, FriendlyName, MediaType, BusType | "
+                        "ConvertTo-Json"
+                    )
+                    out_phys = subprocess.check_output(
+                        ["powershell", "-NoProfile", "-NonInteractive", "-Command", ps_phys],
+                        stderr=subprocess.DEVNULL,
+                        text=True,
+                        encoding="utf-8"
+                    ).strip()
+                    if out_phys:
+                        parsed_phys = json.loads(out_phys)
+                        if isinstance(parsed_phys, dict):
+                            parsed_phys = [parsed_phys]
+                        for p in parsed_phys:
+                            phys_map[str(p.get("DeviceId"))] = p
+                except Exception:
+                    pass
+
+                for dev in parsed:
+                    dev_id = str(dev.get("DeviceID", "")).replace("/", "\\")
+                    idx = dev.get("Index", 0)
+                    size_bytes = int(dev.get("Size", 0) or 0)
+                    size_gb = size_bytes / (1024 ** 3)
+                    model = str(dev.get("Model", "")).strip() or f"Physical Drive {idx}"
+                    media_type = str(dev.get("MediaType", "")).lower()
+                    if_type = str(dev.get("InterfaceType", "")).upper()
+                    
+                    phys_info = phys_map.get(str(idx), {})
+                    bus_type = str(phys_info.get("BusType", "")).upper() or if_type
+                    is_removable = ("removable" in media_type) or (bus_type == "USB") or (if_type == "USB")
+                    is_internal = not is_removable
+
+                    drives.append({
+                        "id": f"PhysicalDrive{idx}",
+                        "node": dev_id or f"\\\\.\\PhysicalDrive{idx}",
+                        "raw_node": dev_id or f"\\\\.\\PhysicalDrive{idx}",
+                        "size_gb": size_gb,
+                        "size_bytes": size_bytes,
+                        "name": model,
+                        "is_internal": is_internal,
+                        "is_removable": is_removable,
+                        "protocol": bus_type or if_type,
+                    })
+
+            # 2. Include Logical Volumes if include_virtual is True
+            if include_virtual:
+                try:
+                    ps_vol = (
+                        "Get-CimInstance -ClassName Win32_LogicalDisk | "
+                        "Select-Object DeviceID, VolumeName, FileSystem, Size, FreeSpace, DriveType | "
+                        "ConvertTo-Json"
+                    )
+                    out_vol = subprocess.check_output(
+                        ["powershell", "-NoProfile", "-NonInteractive", "-Command", ps_vol],
+                        stderr=subprocess.DEVNULL,
+                        text=True,
+                        encoding="utf-8"
+                    ).strip()
+                    if out_vol:
+                        parsed_vol = json.loads(out_vol)
+                        if isinstance(parsed_vol, dict):
+                            parsed_vol = [parsed_vol]
+                        for v in parsed_vol:
+                            letter = str(v.get("DeviceID", "")).strip()
+                            if letter:
+                                v_size = int(v.get("Size", 0) or 0)
+                                v_name = str(v.get("VolumeName", "")).strip() or f"Volume ({letter})"
+                                fs = str(v.get("FileSystem", "")).strip()
+                                d_type = v.get("DriveType", 3)
+                                drives.append({
+                                    "id": letter,
+                                    "node": f"\\\\.\\{letter}",
+                                    "raw_node": f"\\\\.\\{letter}",
+                                    "size_gb": v_size / (1024 ** 3),
+                                    "size_bytes": v_size,
+                                    "name": f"{v_name} [{fs}]" if fs else v_name,
+                                    "is_internal": d_type == 3,
+                                    "is_removable": d_type in (2, 5),
+                                    "protocol": fs,
+                                })
+                except Exception:
+                    pass
+        except Exception:
+            pass
 
     # Sort so external/removable drives appear first
     drives.sort(key=lambda d: (not d["is_removable"], d["is_internal"], d["id"]))
@@ -118,7 +243,81 @@ def get_device_size(device_path: str) -> int:
         except Exception:
             pass
 
-    # 3. Try seek to end
+    # 3. Windows Win32 IOCTL & WMI Query
+    elif sys.platform == "win32":
+        # 3a. Native Win32 DeviceIoControl IOCTL_DISK_GET_LENGTH_INFO (0x00074059)
+        try:
+            import ctypes
+            import ctypes.wintypes
+            GENERIC_READ = 0x80000000
+            FILE_SHARE_READ = 0x00000001
+            FILE_SHARE_WRITE = 0x00000002
+            OPEN_EXISTING = 3
+            IOCTL_DISK_GET_LENGTH_INFO = 0x00074059
+
+            kernel32 = ctypes.windll.kernel32
+            h = kernel32.CreateFileW(
+                device_path,
+                GENERIC_READ,
+                FILE_SHARE_READ | FILE_SHARE_WRITE,
+                None,
+                OPEN_EXISTING,
+                0,
+                None
+            )
+            if h != -1 and h != 0xFFFFFFFFFFFFFFFF and h != 0xFFFFFFFF:
+                try:
+                    length = ctypes.c_int64()
+                    bytes_returned = ctypes.wintypes.DWORD()
+                    res = kernel32.DeviceIoControl(
+                        h,
+                        IOCTL_DISK_GET_LENGTH_INFO,
+                        None,
+                        0,
+                        ctypes.byref(length),
+                        ctypes.sizeof(length),
+                        ctypes.byref(bytes_returned),
+                        None
+                    )
+                    if res and length.value > 0:
+                        return length.value
+                finally:
+                    kernel32.CloseHandle(h)
+        except Exception:
+            pass
+
+        # 3b. WMI fallback query
+        try:
+            import re
+            norm = device_path.strip().lower().replace("/", "\\")
+            if "physicaldrive" in norm:
+                m = re.search(r"physicaldrive(\d+)", norm)
+                if m:
+                    idx = int(m.group(1))
+                    ps = f"Get-CimInstance Win32_DiskDrive | Where-Object Index -eq {idx} | Select-Object -ExpandProperty Size"
+                    out = subprocess.check_output(
+                        ["powershell", "-NoProfile", "-NonInteractive", "-Command", ps],
+                        stderr=subprocess.DEVNULL,
+                        text=True
+                    ).strip()
+                    if out and out.isdigit():
+                        return int(out)
+            elif ":" in norm:
+                m = re.search(r"([a-z]):", norm)
+                if m:
+                    letter = m.group(1).upper() + ":"
+                    ps = f"Get-CimInstance Win32_LogicalDisk | Where-Object DeviceID -eq '{letter}' | Select-Object -ExpandProperty Size"
+                    out = subprocess.check_output(
+                        ["powershell", "-NoProfile", "-NonInteractive", "-Command", ps],
+                        stderr=subprocess.DEVNULL,
+                        text=True
+                    ).strip()
+                    if out and out.isdigit():
+                        return int(out)
+        except Exception:
+            pass
+
+    # 4. Try seek to end
     try:
         with open(device_path, "rb") as dev:
             dev.seek(0, os.SEEK_END)
@@ -128,7 +327,7 @@ def get_device_size(device_path: str) -> int:
     except Exception:
         pass
     
-    # 4. Platform-specific ioctl fallbacks
+    # 5. Platform-specific ioctl fallbacks
     if sys.platform == "darwin":
         try:
             import fcntl
@@ -202,6 +401,46 @@ def check_write_block_status(device_path: str) -> Dict:
                     if f.read().strip() == "1":
                         info["is_read_only"] = True
                         info["mode"] = "Linux Kernel Block Device Read-Only (RO=1)"
+        except Exception:
+            pass
+    elif sys.platform == "win32" and ("\\\\" in device_path or ":" in device_path):
+        try:
+            import ctypes
+            GENERIC_READ = 0x80000000
+            FILE_SHARE_READ = 0x00000001
+            FILE_SHARE_WRITE = 0x00000002
+            OPEN_EXISTING = 3
+            IOCTL_DISK_IS_WRITABLE = 0x00070024
+
+            kernel32 = ctypes.windll.kernel32
+            h = kernel32.CreateFileW(
+                device_path,
+                GENERIC_READ,
+                FILE_SHARE_READ | FILE_SHARE_WRITE,
+                None,
+                OPEN_EXISTING,
+                0,
+                None
+            )
+            if h != -1 and h != 0xFFFFFFFFFFFFFFFF and h != 0xFFFFFFFF:
+                try:
+                    bytes_ret = ctypes.c_ulong()
+                    res = kernel32.DeviceIoControl(
+                        h,
+                        IOCTL_DISK_IS_WRITABLE,
+                        None,
+                        0,
+                        None,
+                        0,
+                        ctypes.byref(bytes_ret),
+                        None
+                    )
+                    err = kernel32.GetLastError()
+                    if not res and err == 19:  # ERROR_WRITE_PROTECT
+                        info["is_read_only"] = True
+                        info["mode"] = "Windows Hardware / Volume Write-Protected (RO)"
+                finally:
+                    kernel32.CloseHandle(h)
         except Exception:
             pass
     return info
@@ -349,7 +588,7 @@ def interactive_select_destination(default_dest: str = "./recovered_all_data") -
         "tag": t("tag_desktop")
     })
 
-    # 3. External Mount Points (macOS /Volumes or Linux /media)
+    # 3. External Mount Points & Alternate Drives (macOS /Volumes, Linux /media or /mnt, Windows Drive Letters)
     if sys.platform == "darwin" and os.path.exists("/Volumes"):
         try:
             for vol in os.listdir("/Volumes"):
@@ -364,6 +603,40 @@ def interactive_select_destination(default_dest: str = "./recovered_all_data") -
                     })
         except Exception:
             pass
+    elif sys.platform.startswith("linux"):
+        for m_root in ("/media", "/mnt"):
+            if os.path.exists(m_root):
+                try:
+                    for vol in os.listdir(m_root):
+                        vol_path = os.path.join(m_root, vol)
+                        if os.path.isdir(vol_path) and not vol.startswith("."):
+                            vol_free = shutil.disk_usage(vol_path).free / (1024 ** 3)
+                            options.append({
+                                "label": f"{vol_path}/recovered_data",
+                                "path": os.path.join(vol_path, "recovered_data"),
+                                "free_gb": vol_free,
+                                "tag": t("tag_external_dest")
+                            })
+                except Exception:
+                    pass
+    elif sys.platform == "win32":
+        import string
+        curr_drive = os.path.splitdrive(os.path.abspath("."))[0].upper()
+        for letter in string.ascii_uppercase:
+            drive_root = f"{letter}:\\"
+            if os.path.exists(drive_root):
+                try:
+                    v_free = shutil.disk_usage(drive_root).free / (1024 ** 3)
+                    # Show secondary / other drives as recommended destination
+                    tag = t("tag_external_dest") if f"{letter}:" != curr_drive else t("tag_default_dest")
+                    options.append({
+                        "label": f"{letter}:\\recovered_data",
+                        "path": f"{letter}:\\recovered_data",
+                        "free_gb": v_free,
+                        "tag": tag
+                    })
+                except Exception:
+                    pass
 
     print("\n" + "=" * 80)
     print(t("dest_title"))

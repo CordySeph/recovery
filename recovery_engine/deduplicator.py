@@ -47,3 +47,21 @@ class HashDeduplicator:
 
         self.seen_hashes.add(md5_hash)
         return True, md5_hash, sha256_hash
+
+    def check_and_register_hash(self, md5_hash: str, sha256_hash: str = "", size_bytes: int = 0) -> bool:
+        """
+        Check if MD5 hash is unique or duplicate using pre-computed hash string.
+        Returns True if unique, False if duplicate.
+        """
+        self.total_checked += 1
+        if not self.enabled or not md5_hash:
+            return True
+
+        if md5_hash in self.seen_hashes:
+            self.duplicate_count += 1
+            self.bytes_saved += size_bytes
+            return False
+
+        self.seen_hashes.add(md5_hash)
+        return True
+

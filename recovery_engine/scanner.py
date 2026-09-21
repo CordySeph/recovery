@@ -519,7 +519,11 @@ def recover_universal(
                     continue
 
                 # Deduplication check
-                is_unique, md5_val = deduplicator.check_and_register(res.get("md5", "").encode("utf-8"))
+                is_unique = deduplicator.check_and_register_hash(
+                    res.get("md5", ""),
+                    res.get("sha256", ""),
+                    res.get("size_bytes", 0)
+                )
                 if not is_unique:
                     try:
                         dup_path = os.path.join(output_dir, res.get("rel_path", ""))

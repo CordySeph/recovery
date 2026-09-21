@@ -141,7 +141,8 @@ def repair_video_file(corrupt_path: str, output_path: str, ref_path: Optional[st
                 return True, msg
 
         # Fallback: Attempt FFmpeg remuxing / untrunc pass if available
-        ffmpeg = shutil.which("ffmpeg") or "/usr/local/bin/ffmpeg" or "/opt/homebrew/bin/ffmpeg"
+        from recovery_engine.carvers.video_carver import find_ffmpeg_binary
+        ffmpeg = find_ffmpeg_binary()
         if ffmpeg and os.path.exists(ffmpeg):
             cmd = [
                 ffmpeg,

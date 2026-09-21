@@ -9,6 +9,7 @@
 - [📂 ชนิดไฟล์ที่รองรับ (Supported File Types - 11 หมวดหมู่)](#-ชนิดไฟล์ที่รองรับ-supported-file-types---11-หมวดหมู่)
 - [🏗️ สถาปัตยกรรมโปรแกรม (Modular Architecture)](#️-สถาปัตยกรรมโปรแกรม-modular-architecture)
 - [📋 ความต้องการของระบบ & การติดตั้ง (Installation & Prerequisites)](#-ความต้องการของระบบ--การติดตั้ง-installation--prerequisites)
+- [🪟 คู่มือการใช้งานบน Windows อย่างละเอียด (Windows Dedicated Guide ⭐)](#-คู่มือการใช้งานบน-windows-อย่างละเอียด-windows-dedicated-guide-)
 - [🚀 คู่มือการใช้งานอย่างละเอียด (Comprehensive Usage Guide)](#-คู่มือการใช้งานอย่างละเอียด-comprehensive-usage-guide)
   - [แนวทางที่ 1: ใช้งานผ่านเมนู Interactive (แนะนำที่สุดสำหรับผู้ใช้งานทั่วไป ⭐)](#แนวทางที่-1-ใช้งานผ่านเมนู-interactive-แนะนำที่สุดสำหรับผู้ใช้งานทั่วไป-)
   - [แนวทางที่ 2: สั่งงานผ่าน Command-Line (CLI Flags สำหรับงานขั้นสูง & สคริปต์อัตโนมัติ)](#แนวทางที่-2-สั่งงานผ่าน-command-line-cli-flags-สำหรับงานขั้นสูง--สคริปต์อัตโนมัติ)
@@ -33,130 +34,121 @@
 
 ---
 
-## 🌟 ฟีเจอร์เด่นระดับมืออาชีพ (Professional Features)
+## 🪟 คู่มือการใช้งานบน Windows อย่างละเอียด (Windows Dedicated Guide ⭐)
 
-1. **⚡ Multi-Core Parallel Processing (ความเร็วสูงสุด 100% CPU)**:
-   - สแกนและสกัดไฟล์พร้อมกันทุกคอร์ CPU ด้วย High-Speed I/O Buffer ขนาด **64 MB** พร้อม Overlap 2MB ป้องกันไฟล์ตกหล่น
-2. **⚖️ มาตรฐาน Forensic ISO/IEC 27037 & Dual Hashes (MD5 + SHA-256)**:
-   - คำนวณค่า **MD5 และ SHA-256** พร้อมกันแบบ Real-time พร้อมออกรายงานพยานหลักฐานดิจิทัล `chain_of_custody.json` สำหรับใช้ในกระบวนการทางกฎหมาย
-3. **🗺️ Visual Disk Sector Heatmap บน Web Dashboard**:
-   - แผนที่แสดงความหนาแน่นของเซกเตอร์ดิสก์แบบ Interactive Heatmap บนหน้าเว็บแกลเลอรี
-4. **🩺 ระบบตรวจสุขภาพดิสก์ล่วงหน้า (Pre-Scan S.M.A.R.T. Health Diagnostics)**:
-   - ตรวจสอบค่าสถานะ S.M.A.R.T. (Reallocated Sectors, Pending Sectors, Temperature, Power-on Hours) และประเมินคะแนนความเสี่ยงของฮาร์ดดิสก์ก่อนเริ่มสแกน ป้องกันมอเตอร์/หัวอ่านพังถาวร
-5. **🛡️ ระบบตรวจจับไดรฟ์ที่เข้ารหัส (Encrypted Volume & BitLocker/LUKS Detector)**:
-   - ตรวจจับ Header การเข้ารหัส (BitLocker, LUKS v1/v2, Apple FileVault, Encrypted APFS) และแจ้งเตือนก่อนสแกนเพื่อป้องกันการเสียเวลาสแกน Ciphertext
-6. **🧩 ระบบค้นหาและกู้ตารางพาร์ติชัน (Lost Partition Table & VBR Rebuilder)**:
-   - ค้นหา MBR, GPT Header และ Boot Sector เดิม (NTFS, FAT32, exFAT, APFS, EXT4) เพื่อรายงานตำแหน่งและขนาดพาร์ติชันเดิมที่สูญหาย
-7. **🔍 ระบบตรวจจับข้อมูลสำคัญและเลขบัตร (Sensitive Data & Thai ID Inspector)**:
-   - สแกนเนื้อหาเอกสารเพื่อค้นหา **เลขบัตรประชาชน 13 หลัก (ตรวจสอบ Checksum จริง)**, หมายเลขบัตรเครดิต (Luhn Algorithm) และคีย์เวิร์ดการเงิน/สัญญา พร้อมติดแท็ก 🚨 Sensitive Data ให้อัตโนมัติ
-8. **🌡️ ระบบคุมความร้อนดิสก์อัตโนมัติ (Thermal Guard & Auto-Throttle)**:
-   - มอนิเตอร์อุณหภูมิดิสก์ระหว่างสแกน หากเกินเกณฑ์ที่กำหนด (เช่น 55°C) ระบบจะ Auto-Pause พักเครื่อง 20 วินาที เพื่อป้องกันความเสียหายจากความร้อนสะสม
-9. **🔬 Interactive Raw Hex Viewer ใน Web Dashboard**:
-   - หน้าแดชบอร์ดมีปุ่มคลิกดูเนื้อหาไบนารีระดับ Raw Hex + ASCII Dump ได้ทันทีผ่านเว็บเบราว์เซอร์
-10. **☁️ การส่งไฟล์ขึ้น Remote Server / NAS อัตโนมัติ (`--sftp-upload`)**:
-    - รองรับการคัดลอก/ซิงค์ชุดข้อมูลที่กู้ได้ตรงไปยัง Server/NAS ผ่าน SFTP/rsync ทันทีที่กู้เสร็จ
-11. **🔧 ระบบซ่อมไฟล์วิดีโออัตโนมัติ (Video Auto-Repair & MP4/MOV `moov` Rebuilder)**:
-    - ซ่อมแซมไฟล์วิดีโอ MP4 / MOV ที่เปิดเล่นไม่ได้โดยการ Reconstruct โครงสร้าง `moov` atom จาก Reference Video หรือ FastStart Remuxing
-12. **🗂️ ระบบกู้ชื่อไฟล์เดิมและโครงสร้างเดิม (FAT / NTFS / EXT4 Remnant Parser)**:
-    - สแกนหาตาราง Directory Entries (FAT32/exFAT), $MFT Records (NTFS) และ Linux EXT4 Inode directory blocks เพื่อคืน **"ชื่อไฟล์เดิม (Original Filenames)"**
-13. **📷 ระบบกู้ไฟล์ภาพกล้องโปร (RAW Photo Carver with TIFF/EXIF Parser)**:
-    - สกัดภาพ RAW จากกล้อง **Canon (.cr2, .cr3), Nikon (.nef), Sony (.arw), Adobe DNG (.dng) และ TIFF** พร้อมดึงข้อมูลรุ่นกล้องและวันที่ถ่ายจริง
-14. **🎨 ระบบกู้ไฟล์งานออกแบบ (Graphics & Vector Carver)**:
-    - กู้คืนไฟล์ Adobe Photoshop (`.psd`), Illustrator (`.ai`), PostScript (`.eps`) และ Scalable Vector Graphics (`.svg`)
-15. **💽 ระบบกู้ไฟล์ดิสก์เสมือน (Virtual Disks & Images)**:
-    - รองรับไฟล์ **VMware (.vmdk), Hyper-V (.vhd, .vhdx) และ ISO (.iso)**
-16. **✉️ ระบบกู้ไฟล์อีเมล (Email & Mailbox Carver)**:
-    - รองรับไฟล์ข้อความ **RFC 822 (.eml) และ Outlook Personal Storage (.pst, .msg)**
-17. **💻 ระบบกู้ซอร์สโค้ดและสคริปต์ (Code Carver)**:
-    - รองรับไฟล์สคริปต์ **Python (.py), Web (.html), JSON (.json), CSV (.csv) และ SQL (.sql)**
-18. **🎵 ระบบกู้ไฟล์เสียงพร้อมอ่าน Metadata (Audio Carver with ID3 / Vorbis Tags)**:
-    - กู้คืนไฟล์ **MP3, WAV, FLAC, OGG, M4A, AAC** พร้อมอ่าน ID3v1, ID3v2, Vorbis Comments แล้วแยกโฟลเดอร์ตาม `Audio/<Artist>/<Album>/<Title>.<ext>` อัตโนมัติ
-19. **🛡️ ระบบทนทานต่อ Bad Sector อัตโนมัติ (Bad Sector Fault-Tolerance & Auto-Skip)**:
-    - สลับไปอ่านละเอียดระดับ 4KB Block อัตโนมัติเมื่อเจอบล็อกเสีย พร้อมบันทึกแผนที่ลงไฟล์ `bad_sectors_map.log`
-20. **🧹 ระบบตัดไฟล์ซ้ำอัตโนมัติ (Real-Time Hash-based Deduplication)**:
-    - ตรวจจับค่า MD5/SHA-256 Checksum แบบ Real-Time และข้ามการบันทึกไฟล์ที่ซ้ำกัน
-21. **⏱️ คำนวณเวลาที่เหลือแบบ Real-Time (Accurate Live ETA & Speed)**:
-    - แสดงความเร็วในการอ่านดิสก์ (MB/s) และเวลานับถอยหลังโดยประมาณ
-22. **🌐 ระบบ 2 ภาษาในตัว (Bilingual UI Support: English Default / Thai)**:
-    - รองรับทั้งภาษาอังกฤษและภาษาไทย สลับภาษาได้ทันทีด้วยปุ่ม `[L]` หรือ Flag `--lang th`
+โปรแกรมรองรับการทำงานบน **Windows 10, Windows 11 และ Windows Server** แบบเต็มประสิทธิภาพ โดยสามารถเข้าถึง Physical Drive, Flash Drive, SD Card และ Logical Volume (C:, D:, E:) ได้โดยตรง
+
+### 1. การเปิดใช้งานด้วยสิทธิ์ Administrator (จำเป็นสำหรับการอ่าน Raw Disk):
+การอ่านข้อมูลระดับเซกเตอร์ของฮาร์ดดิสก์บน Windows จำเป็นต้องมีสิทธิ์ **Administrator**:
+1. กดปุ่ม `Windows` บนคีย์บอร์ด
+2. พิมพ์ **PowerShell** หรือ **cmd** หรือ **Terminal**
+3. คลิกขวา แล้วเลือก **"Run as administrator" (รันในฐานะผู้ดูแลระบบ)**
+4. ไปยังโฟลเดอร์ของโปรเจกต์:
+   ```powershell
+   cd C:\path\to\recovery
+   ```
 
 ---
 
-## 📂 ชนิดไฟล์ที่รองรับ (Supported File Types - 11 หมวดหมู่)
-
-| หมวดหมู่ | นามสกุลไฟล์ | รายละเอียดโครงสร้าง & การตรวจสอบ |
-| :--- | :--- | :--- |
-| 📷 **รูปภาพทั่วไป (Images)** | `.jpg`, `.jpeg`, `.png`, `.gif`, `.webp`, `.bmp`, `.heic` | สกัด EXIF DateTime จัดโฟลเดอร์ตามวันจริง |
-| 📷 **รูปกล้องโปร (RAW Photos)** | `.cr2`, `.cr3`, `.nef`, `.arw`, `.dng`, `.tiff` | ดึงรุ่นกล้อง Canon/Nikon/Sony/Adobe DNG และวันที่ถ่าย |
-| 🎥 **วิดีโอ (Videos)** | `.mp4`, `.mov`, `.avi` | สกัดคอนเทนเนอร์ Atom Header (`ftyp`, `moov`, `mdat`) |
-| 📹 **กล้องวงจรปิด (CCTV)** | `.264` / `.mp4` | รองรับชิป Xiongmai H.264 ดึง Timestamp วันเวลาจริง และแปลงเป็น MP4 |
-| 🎵 **ไฟล์เสียง (Audio)** | `.mp3`, `.wav`, `.flac`, `.ogg`, `.m4a`, `.aac` | ตรวจสอบ ID3 Tag, Vorbis Comments แยกตามศิลปิน/อัลบั้ม |
-| 📄 **เอกสาร (Documents)** | `.pdf`, `.docx`, `.xlsx`, `.pptx`, `.txt` | ตรวจสอบโครงสร้าง, สแกนเลขบัตร ปชช., บัตรเครดิต, สัญญา |
-| 🎨 **กราฟิก & เวกเตอร์ (Graphics)** | `.psd`, `.ai`, `.eps`, `.svg` | ตรวจสอบ Photoshop 8BPS Header, Vector Paths |
-| 📦 **ไฟล์บีบอัด (Archives)** | `.zip`, `.7z`, `.rar`, `.tar`, `.gz` | ตรวจสอบ Central Directory, Archive Markers, CRC |
-| 🗄️ **ฐานข้อมูล (Databases)** | `.sqlite` / `.db` | ไฟล์ฐานข้อมูล SQLite Format 3 ตรวจสอบ B-Tree Integrity |
-| 💽 **ดิสก์เสมือน (Virtual Disks)** | `.vmdk`, `.vhd`, `.vhdx`, `.iso` | VMware Sparse, Hyper-V VHDX, ISO 9660 Images |
-| ✉️ **อีเมล (Emails)** | `.eml`, `.msg`, `.pst` | RFC 822 Headers, Outlook Personal Storage Tables |
-| 💻 **ซอร์สโค้ด (Code)** | `.py`, `.js`, `.html`, `.json`, `.csv`, `.sql` | โครงสร้างสคริปต์, ตารางข้อมูล และฐานข้อมูล SQL |
+### 2. รูปแบบชื่อไดรฟ์บน Windows:
+* **Physical Drive (ไดรฟ์ทั้งลูก รวมพาร์ติชันที่เสียหาย/ถูกลบ)**:
+  * `\\.\PhysicalDrive0` : ฮาร์ดดิสก์หลักของระบบ
+  * `\\.\PhysicalDrive1` : ฮาร์ดดิสก์ตัวที่สอง หรือ External HDD
+  * `\\.\PhysicalDrive2` : USB Flash Drive หรือการ์ด SD Card
+* **Logical Partition (เฉพาะพาร์ติชันหรือไดรฟ์ที่กำหนด Drive Letter)**:
+  * `\\.\D:` หรือ `D:` : พาร์ติชันไดรฟ์ D
+  * `\\.\E:` หรือ `E:` : พาร์ติชันไดรฟ์ E (เช่น Flash Drive)
+* **ไฟล์ Disk Image**:
+  * `C:\backup\dump.img` หรือ `./disk.raw`
 
 ---
 
-## 🏗️ สถาปัตยกรรมโปรแกรม (Modular Architecture)
+### 3. คำสั่งดูรายการไดรฟ์ทั้งหมดในเครื่อง Windows:
+```powershell
+python recover.py -l
+```
+* **ตัวอย่างผลลัพธ์บน Windows**:
+  ```text
+  ================================================================================
+  💾 Available Disks & Drives Detected on System:
+  --------------------------------------------------------------------------------
+    [1] \\.\E:                  29.8 GB   -  Volume (E:) [FAT32] (External / SD Card / USB ⭐ | FAT32)
+    [2] \\.\D:                  464.8 GB  -  Volume (D:) [NTFS] (Internal System Disk ⚠️ | NTFS)
+    [3] \\.\C:                  110.7 GB  -  Volume (C:) [NTFS] (Internal System Disk ⚠️ | NTFS)
+    [4] \\.\PHYSICALDRIVE2      29.8 GB   -  SanDisk Ultra USB 3.0 (External / SD Card / USB ⭐ | USB)
+    [5] \\.\PHYSICALDRIVE1      465.8 GB  -  WDC WDS500G1B0C (Internal System Disk ⚠️ | NVME)
+    [6] \\.\PHYSICALDRIVE0      111.8 GB  -  GALAX TA1D0120A (Internal System Disk ⚠️ | SATA)
+  ================================================================================
+  ```
 
-```text
-re/
-├── recover.py                     # [Entry Point] เมนูหลัก, CLI Flags, Web Server & Video Repair
-├── cctv_recover.py                # [Entry Point] สคริปต์กู้กล้องวงจรปิดเฉพาะทาง
-├── build_standalone.sh            # สคริปต์คอมไพล์เป็น Portable Binary (PyInstaller)
-├── test_engine.py                 # ชุดทดสอบ Unit & Functional Test Suite (19 หมวดหมู่)
-├── pyproject.toml                 # Packaging configuration (pip install -e .)
-├── requirements.txt               # Dependencies documentation
-├── .gitignore                     # Git ignore configuration
-├── README.md                      # คู่มือการใช้งานฉบับสมบูรณ์
-└── recovery_engine/               # [Core Package] แกนกลางระบบกู้ข้อมูล
-    ├── __init__.py                # Package Metadata
-    ├── config.py                  # ค่าคงที่, Magic Signatures, 11 File Categories
-    ├── i18n.py                    # ระบบแปลภาษา 2 ภาษา (EN / TH) และ Safe UTF-8
-    ├── disk_io.py                 # ตรวจจับไดรฟ์, Write-Block Check, Resilient Bad Sector Reader, Disk Clone
-    ├── deduplicator.py            # ตัวตรวจจับและตัดไฟล์ซ้ำด้วย Dual Hashes (MD5 + SHA-256)
-    ├── validators.py              # ตัวตรวจสอบความสมบูรณ์ของโครงสร้างไฟล์แต่ละชนิด
-    ├── reporter.py                # ตัวสร้างเว็บแกลเลอรี HTML (Heatmap), CSV และ Chain of Custody JSON
-    ├── scanner.py                 # ตัวควบคุมการสแกนและดึงไฟล์แบบ Multi-Core Parallel
-    ├── smart_checker.py           # ตัวตรวจสุขภาพดิสก์ S.M.A.R.T. และประเมินความเสี่ยง
-    ├── crypto_detector.py         # ตัวตรวจจับไดรฟ์ที่เข้ารหัส (BitLocker, LUKS, FileVault)
-    ├── partition_rebuilder.py     # ตัวค้นหาและกู้ตารางพาร์ติชันเดิม (MBR, GPT, VBR)
-    ├── doc_inspector.py           # ตัวตรวจจับข้อมูลสำคัญ (เลขบัตร ปชช., บัตรเครดิต, สัญญา)
-    ├── thermal_guard.py           # ตัวควบคุมอุณหภูมิดิสก์และพักเครื่องอัตโนมัติ
-    ├── remote_exporter.py         # ตัวเชื่อมต่อและส่งไฟล์ขึ้น Remote NAS / SFTP
-    ├── video_repair.py            # ตัวซ่อมไฟล์วิดีโอและประกอบ moov atom ใหม่
-    ├── fs_parser.py               # ตัวอ่านโครงสร้าง FAT/NTFS/EXT4 เพื่อกู้ชื่อไฟล์เดิม
-    ├── web_server.py              # ตัวรัน Local Web Dashboard & Media Streaming Server + Hex API
-    └── carvers/                   # โมดูล Carving เจาะจงเฉพาะกลุ่มไฟล์
-        ├── __init__.py
-        ├── image_carver.py        # สแกนรูปภาพ + สกัดวันที่จาก EXIF Metadata
-        ├── raw_carver.py          # สแกนรูปกล้องโปร RAW (CR2/CR3/NEF/ARW/DNG/TIFF)
-        ├── video_carver.py        # สแกนวิดีโอ MP4, MOV, AVI และสตรีม CCTV H.264
-        ├── audio_carver.py        # สแกนไฟล์เสียง MP3, WAV, FLAC, OGG, M4A + ID3 Tags
-        ├── doc_carver.py          # สแกนเอกสาร PDF และ Microsoft Office
-        ├── graphics_carver.py     # สแกน Photoshop PSD, Illustrator AI, EPS, SVG
-        ├── archive_carver.py      # สแกนไฟล์บีบอัด ZIP, 7Z, RAR, TAR, GZ และ SQLite DB
-        ├── virtual_disk_carver.py # สแกนดิสก์เสมือน VMDK, VHD, VHDX, ISO
-        ├── email_carver.py        # สแกนอีเมล EML และ Outlook PST
-        └── code_carver.py         # สแกนโค้ด Python, HTML, SQL, JSON
+---
+
+### 4. รวมคำสั่งยอดนิยมสำหรับการกู้ข้อมูลบน Windows:
+
+#### กู้ข้อมูลทั้งหมดจาก Flash Drive / External HDD (PhysicalDrive2) ไปเก็บที่ `D:\recovered_data`:
+```powershell
+python recover.py \\.\PhysicalDrive2 --all -o D:\recovered_data -y
+```
+
+#### กู้ข้อมูลเฉพาะไดรฟ์ E: (พาร์ติชัน Flash Drive):
+```powershell
+python recover.py \\.\E: --all -o D:\recovered_data
+```
+
+#### กู้เฉพาะรูปถ่าย RAW ของกล้อง Canon/Nikon/Sony ขนาดตั้งแต่ 5MB ขึ้นไป:
+```powershell
+python recover.py \\.\PhysicalDrive2 --raw-photos --min-size 5m -o D:\recovered_raw
+```
+
+#### กู้เฉพาะเอกสาร (PDF, Word, Excel) พร้อมตรวจจับเลขบัตรประชาชนและสัญญา:
+```powershell
+python recover.py \\.\PhysicalDrive2 --docs -o D:\recovered_docs
+```
+
+#### กู้คลิปกล้องวงจรปิด Xiongmai H.264 เฉพาะวันที่กำหนด:
+```powershell
+python cctv_recover.py \\.\PhysicalDrive2 --dates 2026-09-06,2026-09-07 -o D:\recovered_cctv
+```
+
+#### ตรวจสุขภาพ S.M.A.R.T. และประเมินความเสี่ยงของฮาร์ดดิสก์บน Windows:
+```powershell
+python recover.py \\.\PhysicalDrive1 --smart-check
+```
+
+#### โคลนสำเนาดิสก์ทั้งลูกเป็นไฟล์ `.img` ก่อนเริ่มสแกน (ปลอดภัย 100%):
+```powershell
+python recover.py \\.\PhysicalDrive2 --clone D:\flashdrive_backup.img
+```
+
+#### สแกนกู้ข้อมูลจากไฟล์อิมเมจที่โคลนไว้ (ไม่ต้องใช้สิทธิ์ Administrator):
+```powershell
+python recover.py D:\flashdrive_backup.img --all -o D:\recovered_from_img -y
+```
+
+#### เปิดหน้า Local Web Dashboard & Media Streamer บน Windows:
+```powershell
+python recover.py --serve D:\recovered_data --port 8080
+# จากนั้นเปิดเว็บเบราว์เซอร์ (Chrome / Edge) ไปที่: http://localhost:8080
 ```
 
 ---
 
-## 📋 ความต้องการของระบบ & การติดตั้ง (Installation & Prerequisites)
+### 5. การสร้างและใช้งานไฟล์ Standalone Executable (.exe) บน Windows:
+หากต้องการนำโปรแกรมไปใช้งานบนเครื่อง Windows อื่นโดย**ไม่ต้องติดตั้ง Python**:
 
-* **ระบบปฏิบัติการ**: macOS, Linux (Ubuntu, Debian, Fedora, Arch, CentOS), Windows (ผ่าน WSL2 หรือ Git Bash)
-* **Python Version**: Python 3.8 ขึ้นไป (รองรับจนถึง Python 3.14+)
-* **Zero Dependencies Required**: ตัว Engine เขียนด้วย Pure Python Standard Library สามารถรันได้ทันทีโดยไม่ต้องติดตั้งไลบรารีภายนอก
-* **การติดตั้งเป็น CLI Tool (Optional)**:
-  ```bash
-  pip install -e .
-  # จากนั้นสามารถเรียกใช้งานผ่านคำสั่ง 'universal-recover' และ 'cctv-recover' ได้ทันที
-  ```
+1. **สร้างไฟล์ `.exe`**:
+   - ดับเบิลคลิกไฟล์ `build_standalone.bat` หรือรันผ่าน PowerShell:
+     ```powershell
+     .\build_standalone.ps1
+     ```
+2. **ไฟล์ผลลัพธ์**: จะได้ไฟล์ `dist\recover.exe`
+3. **การนำไปใช้งานบนเครื่องปลายทาง**:
+   - คัดลอก `dist\recover.exe` ใส่ Flash Drive ไปเปิดบนเครื่องอื่น
+   - เปิด PowerShell / CMD ในเครื่องปลายทางด้วย **Run as administrator**
+   - รันคำสั่งกู้ข้อมูลได้ทันที:
+     ```powershell
+     .\recover.exe \\.\PhysicalDrive1 --all -o D:\recovered_data
+     ```
 
 ---
 
@@ -166,18 +158,21 @@ re/
 
 ### แนวทางที่ 1: ใช้งานผ่านเมนู Interactive (แนะนำที่สุดสำหรับผู้ใช้งานทั่วไป ⭐)
 
-เพียงเปิด Terminal และรันคำสั่งหลักด้วยสิทธิ์ `sudo`:
-
-```bash
-sudo python3 recover.py
-```
+* **บน Windows** (เปิด PowerShell / CMD ด้วย Run as Administrator):
+  ```powershell
+  python recover.py
+  ```
+* **บน macOS / Linux** (ผ่าน Terminal ด้วย sudo):
+  ```bash
+  sudo python3 recover.py
+  ```
 
 #### ลำดับขั้นตอนการทำงานในเมนู Interactive:
 1. **เลือกไดรฟ์ต้นทาง (Source Drive)**:
    - โปรแกรมจะแสดงรายการดิสก์ทั้งหมด พร้อมขนาด, ชนิด (Internal / External / SD Card), และ Bus Protocol
    - ป้อนตัวเลข `[1-N]` เพื่อเลือกไดรฟ์
    - กด `[L]` เพื่อสลับภาษาไทย / อังกฤษ
-   - กด `[C]` เพื่อระบุ Path ไดรฟ์หรือไฟล์ Image ด้วยตนเอง (เช่น `/dev/rdisk4` หรือ `./dump.img`)
+   - กด `[C]` เพื่อระบุ Path ไดรฟ์หรือไฟล์ Image ด้วยตนเอง (เช่น `\\.\PhysicalDrive1`, `/dev/rdisk4` หรือ `./dump.img`)
 2. **การตรวจสอบอัตโนมัติก่อนสแกน (Pre-Scan Inspection)**:
    - ระบบจะตรวจสุขภาพดิสก์ (S.M.A.R.T. Diagnostics) และแจ้งเตือนทันทีหากพบความเสี่ยงที่หัวอ่าน/มอเตอร์จะพัง
    - ระบบจะตรวจจับโครงสร้างการเข้ารหัส (BitLocker / LUKS / FileVault) และแจ้งเตือนก่อนเริ่มสแกน
@@ -244,8 +239,27 @@ sudo python3 recover.py
 | `--sftp-upload` | ซิงค์ไฟล์กู้ได้ขึ้น Remote SFTP/NAS อัตโนมัติ | `--sftp-upload user@nas:/volume1/backup` |
 | `--thermal-limit` | กำหนดอุณหภูมิดิสก์สูงสุด (°C) ก่อนระบบพักเครื่อง | `--thermal-limit 55` |
 
-#### ตัวอย่างคำสั่งที่ใช้บ่อย:
+#### ตัวอย่างคำสั่งที่ใช้บ่อย (Common Commands):
 
+##### 🪟 บน Windows (เปิด PowerShell หรือ Command Prompt ด้วย Run as Administrator):
+```powershell
+# 1. แสดงรายการดิสก์และพาร์ติชันทั้งหมดในเครื่อง
+python recover.py -l
+
+# 2. กู้ข้อมูลทั้งหมดจากไดรฟ์ที่ 1 (PhysicalDrive1) ไปเก็บไว้ที่ไดรฟ์ D:\
+python recover.py \\.\PhysicalDrive1 --all -o D:\recovered_data -y
+
+# 3. กู้ข้อมูลเฉพาะพาร์ติชันไดรฟ์ D: (หรือ Flash Drive E:)
+python recover.py \\.\D: --all -o C:\recovered_data
+
+# 4. กู้เฉพาะรูปถ่าย RAW ของกล้อง Canon/Nikon/Sony
+python recover.py \\.\PhysicalDrive1 --raw-photos --min-size 5m -o D:\recovered_raw
+
+# 5. ตรวจสุขภาพ S.M.A.R.T. ของฮาร์ดดิสก์
+python recover.py \\.\PhysicalDrive1 --smart-check
+```
+
+##### 🍎 บน macOS / 🐧 บน Linux (ผ่าน Terminal ด้วย sudo):
 ```bash
 # 1. กู้ข้อมูลทั้งหมดแบบ Full Auto ไปยัง External Drive
 sudo python3 recover.py /dev/rdisk4 --all -o /Volumes/BackupDrive/recovered_data -y
@@ -441,18 +455,27 @@ sudo python3 cctv_recover.py /dev/rdisk4 --dates 2026-09-06,2026-09-07 -o ./reco
 
 ### แนวทางที่ 14: การนำไปใช้งานบนเครื่องที่ไม่มี Python (Standalone Portable Executable)
 
-สามารถคอมไพล์ระบบทั้งหมดให้กลายเป็นไฟล์ Executable เดี่ยวเพื่อนำไปใส่ Flash Drive ใช้งานนอกสถานที่:
+สามารถคอมไพล์ระบบทั้งหมดให้กลายเป็นไฟล์ Executable เดี่ยว (`.exe` บน Windows หรือ Binary บน macOS/Linux) เพื่อนำไปใส่ Flash Drive ใช้งานนอกสถานที่ได้ทันที:
 
+#### 🪟 สำหรับ Windows (สร้าง `dist\recover.exe`):
+ดับเบิลคลิกไฟล์ `build_standalone.bat` หรือรันผ่าน PowerShell:
+```powershell
+.\build_standalone.ps1
+# หรือ
+build_standalone.bat
+```
+* **วิธีรันบนเครื่อง Windows ปลายทาง** (เปิด Command Prompt หรือ PowerShell ด้วย `Run as Administrator`):
+  ```powershell
+  .\recover.exe \\.\PhysicalDrive1 --all -o D:\recovered_data
+  ```
+
+#### 🍎 สำหรับ macOS / 🐧 Linux (สร้าง `dist/recover`):
 ```bash
-# 1. รันสคริปต์คอมไพล์
 chmod +x build_standalone.sh
 ./build_standalone.sh
 ```
-
-* **ผลลัพธ์**: จะได้ไฟล์ไบนารีเดี่ยวที่โฟลเดอร์ `dist/recover`
-* **การนำไปใช้งานบนเครื่องปลายทาง**:
+* **วิธีรันบนเครื่อง macOS / Linux ปลายทาง**:
   ```bash
-  # รันได้ทันทีโดยไม่ต้องติดตั้ง Python หรือไลบรารีใด ๆ เพิ่มเติม!
   sudo ./recover
   ```
 
@@ -559,11 +582,16 @@ recovered_data/
 
 สามารถทดสอบความถูกต้องของระบบทั้งหมดได้ด้วยคำสั่ง:
 
-```bash
-python3 test_engine.py
-```
+* **บน Windows**:
+  ```powershell
+  python test_engine.py
+  ```
+* **บน macOS / Linux**:
+  ```bash
+  python3 test_engine.py
+  ```
 
-* ครอบคลุมการทดสอบครบทั้ง **19 Test Suites (100% Passed)**:
+* ครอบคลุมการทดสอบครบทั้ง **20 Test Suites (100% Passed)**:
   1. `format_eta` & Write-Block Verification
   2. `parse_size_str` Size Parser
   3. `Deduplication` & Dual Hashing (MD5 + SHA-256)
@@ -583,14 +611,17 @@ python3 test_engine.py
   17. Email & Communication Carvers (EML, PST)
   18. Source Code Carvers (HTML, PY, SQL)
   19. Forensic Reporting (CSV, HTML Heatmap Gallery, ISO/IEC 27037 JSON Manifest)
+  20. Cross-Platform Windows & Unix Subsystem (Drive Discovery, Win32 Device Sizing & Admin Privileges)
 
 ---
 
 ## ❓ คำถามที่พบบ่อย (FAQ)
 
-* **Q: ทำไมต้องรันด้วยคำสั่ง `sudo`?**
-  * **A:** การอ่านข้อมูลระดับ Raw Disk Blocks (`/dev/rdisk*` บน macOS หรือ `/dev/sd*` บน Linux) จำเป็นต้องได้รับสิทธิ์ระดับ Root หรือ Administrator ของระบบปฏิบัติการ
+* **Q: ทำไมต้องรันด้วยสิทธิ์ Administrator บน Windows หรือ `sudo` บน macOS/Linux?**
+  * **A:** การอ่านข้อมูลระดับ Raw Disk Blocks หรือ Raw Sectors (`\\.\PhysicalDriveX` / `\\.\D:` บน Windows หรือ `/dev/rdisk*` บน macOS หรือ `/dev/sd*` บน Linux) เป็นการข้าม File System Driver ปกติเพื่อกู้คืนเซกเตอร์ที่ถูกลบ จำเป็นต้องได้รับสิทธิ์ระดับ Administrator/Root เท่านั้น หากไม่ใช้สิทธิ์ Administrator บน Windows จะเกิดข้อผิดพลาด `PermissionError: Access is denied`
+* **Q: ถ้าต้องการกู้ข้อมูลจากไฟล์ `.img` หรือ `.raw` จำเป็นต้องใช้ Administrator หรือไม่?**
+  * **A:** ไม่จำเป็น สามารถเปิด Command Prompt หรือ PowerShell ธรรมดาแล้วสั่งกู้ข้อมูลจากไฟล์อิมเมจได้ทันที
 * **Q: ไดรฟ์ที่ฟอร์แมตแบบ Quick Format สามารถกู้คืนได้ไหม?**
   * **A:** ได้ 100% เพราะ Quick Format ลบเพียงตารางดัชนี แต่เนื้อหาของไฟล์ในเซกเตอร์ยังคงอยู่ครบถ้วน ตัว Carving Engine จะสแกนหาเนื้อหาและกู้คืนกลับมาได้ทั้งหมด
 * **Q: การกู้ไฟล์บน SSD แตกต่างจาก HDD อย่างไร?**
-  * **A:** หาก SSD ทำงานร่วมกับระบบ TRIM และมีการลบไฟล์แบบปกติ ข้อมูลอาจถูกล้างจากเซลล์ Flash NAND แต่หากเป็นการกู้จากไดรฟ์ USB/SD Card หรือ SSD ที่ไม่ได้เปิด TRIM ระบบจะสามารถกู้คืนได้ตามปกติ
+  * **A:** หาก SSD ทำงานร่วมกับระบบ TRIM และมีการลบไฟล์แบบปกติ ข้อมูลอาจถูกล้างจากเซลล์ Flash NAND แต่หากเป็นการกู้จากไดรฟ์ USB/SD Card หรือ SSD ที่ไม่ได้เปิด TRIM หรือไดรฟ์ที่สูญเสียพาร์ติชัน ระบบจะสามารถกู้คืนได้ตามปกติ

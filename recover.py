@@ -21,7 +21,7 @@ import shutil
 from recovery_engine.config import DEFAULT_CORES, FILE_CATEGORIES
 from recovery_engine.i18n import t, set_language, CURRENT_LANG
 from recovery_engine.disk_io import (
-    get_available_drives, clone_disk_to_image
+    get_available_drives, clone_disk_to_image, is_admin
 )
 from recovery_engine.scanner import recover_universal
 from recovery_engine.smart_checker import evaluate_disk_health, print_health_report
@@ -54,7 +54,7 @@ def print_drives_table(drives: list):
             tags.append(d["protocol"])
         
         tag_str = " | ".join(tags)
-        print(f"  [{idx}] {dev_path:<14} {size_str:>9}  -  {d['name']} ({tag_str})")
+        print(f"  [{idx}] {dev_path:<22} {size_str:>9}  -  {d['name']} ({tag_str})")
     print("=" * 80)
 
 def interactive_select_drive() -> str:
@@ -94,13 +94,19 @@ def interactive_select_drive() -> str:
         if choice_lower in ("c", "custom"):
             try:
                 custom_path = input(t("prompt_custom_drive")).strip()
-                if custom_path and os.path.exists(custom_path):
+                if custom_path:
                     if sys.platform == "darwin" and custom_path.startswith("/dev/disk"):
                         custom_path = custom_path.replace("/dev/disk", "/dev/rdisk")
-                    return custom_path
-                else:
-                    print(f"[!] Path '{custom_path}' does not exist.")
-                    continue
+                    elif sys.platform == "win32":
+                        if len(custom_path) == 2 and custom_path[1] == ":" and custom_path[0].isalpha():
+                            custom_path = f"\\\\.\\{custom_path}"
+                        elif len(custom_path) == 3 and custom_path[1:] in (":\\", ":/") and custom_path[0].isalpha():
+                            custom_path = f"\\\\.\\{custom_path[:2]}"
+                    if os.path.exists(custom_path) or (sys.platform == "win32" and custom_path.startswith("\\\\.\\")):
+                        return custom_path
+                    else:
+                        print(f"[!] Path '{custom_path}' does not exist.")
+                        continue
             except (KeyboardInterrupt, EOFError):
                 sys.exit(0)
 
@@ -170,10 +176,14 @@ def interactive_select_mode() -> tuple:
         return "recover", set().union(*FILE_CATEGORIES.values())
 
 def main():
-    multiprocessing.set_start_method("fork", force=False)
+    if "fork" in multiprocessing.get_all_start_methods():
+        try:
+            multiprocessing.set_start_method("fork", force=False)
+        except (ValueError, RuntimeError):
+            pass
 
     parser = argparse.ArgumentParser(description="Universal Multi-Core Data Recovery Engine (Professional / Forensic Grade)")
-    parser.add_argument("device", nargs="?", default=None, help="Drive path (e.g. /dev/rdisk4, /dev/sdb, or disk.img)")
+    parser.add_argument("device", nargs="?", default=None, help="Drive path (e.g. \\\\.\\PhysicalDrive1, /dev/rdisk4, /dev/sdb, or disk.img)")
     parser.add_argument("-s", "--select", action="store_true", help="Interactively select drive")
     parser.add_argument("-l", "--list-disks", action="store_true", help="List all detected disks and exit")
     parser.add_argument("-o", "--output", default=None, help="Output directory (default: interactive prompt after scan)")
@@ -282,6 +292,27 @@ def main():
         if sys.platform == "darwin" and device_path.startswith("/dev/disk") and not device_path.startswith("/dev/rdisk"):
             device_path = device_path.replace("/dev/disk", "/dev/rdisk")
             print(t("auto_raw_device", dev=device_path))
+        elif sys.platform == "win32":
+            if len(device_path) == 2 and device_path[1] == ":" and device_path[0].isalpha():
+                device_path = f"\\\\.\\{device_path}"
+            elif len(device_path) == 3 and device_path[1:] in (":\\", ":/") and device_path[0].isalpha():
+                device_path = f"\\\\.\\{device_path[:2]}"
+
+    # Check administrator privileges if accessing raw physical/volume devices
+    is_raw_dev = (
+        (sys.platform == "win32" and device_path.startswith("\\\\.\\")) or
+        (sys.platform != "win32" and device_path.startswith("/dev/"))
+    )
+    if is_raw_dev and not is_admin():
+        print("\n" + "=" * 80)
+        print(t("permission_error", dev=device_path))
+        print(t("sudo_hint"))
+        if sys.platform == "win32":
+            print("   👉 PowerShell / Command Prompt (Run as Administrator):")
+            print(f"      python recover.py {device_path} --all\n")
+        else:
+            print(f"      sudo python3 recover.py {device_path} --all\n")
+        print("=" * 80 + "\n")
 
     # 8. Handle Clone mode directly
     if args.clone:

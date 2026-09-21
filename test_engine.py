@@ -302,7 +302,31 @@ def run_tests():
 
         print("  ✓ Reporting (CSV Dual Hashes, HTML Heatmap Gallery, ISO 27037 JSON Manifest) tests passed")
 
-    print("\n🎉 ALL 19 TEST SUITES PASSED SUCCESSFULLY 100%!")
+    # 20. Test Windows Platform Discovery, Device Sizing & Admin Checking
+    from recovery_engine.disk_io import is_admin, get_available_drives, get_device_size
+    from recovery_engine.smart_checker import get_windows_smart_status
+
+    # is_admin() should return boolean on any OS without crashing
+    admin_status = is_admin()
+    assert isinstance(admin_status, bool)
+
+    # get_available_drives() should return a list of dictionaries with valid keys
+    drv_list = get_available_drives(include_virtual=True)
+    assert isinstance(drv_list, list)
+    for d in drv_list:
+        assert "id" in d and "node" in d and "size_gb" in d and "name" in d
+
+    # File size query should work on normal files
+    sz = get_device_size("./test_engine.py")
+    assert sz == os.path.getsize("./test_engine.py")
+
+    # Windows SMART helper returns valid dict structure
+    win_smart = get_windows_smart_status(r"\\.\PhysicalDrive0")
+    assert isinstance(win_smart, dict)
+    assert "smart_status" in win_smart
+    print("  ✓ Windows Platform Discovery, Device Sizing & Admin Check tests passed")
+
+    print("\n🎉 ALL 20 TEST SUITES PASSED SUCCESSFULLY 100%!")
 
 if __name__ == "__main__":
     run_tests()
