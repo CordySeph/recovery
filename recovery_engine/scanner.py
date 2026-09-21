@@ -30,6 +30,8 @@ from recovery_engine.disk_io import (
 from recovery_engine.validators import validate_file_integrity
 from recovery_engine.deduplicator import HashDeduplicator
 from recovery_engine.reporter import generate_csv_report, generate_gallery_html, generate_chain_of_custody_manifest
+from recovery_engine.pdf_report import generate_forensic_pdf_report
+from recovery_engine.notifier import AlertNotifier
 from recovery_engine.carvers.image_carver import scan_images_in_chunk, extract_exif_date
 from recovery_engine.carvers.video_carver import scan_videos_in_chunk, convert_h264_to_mp4
 from recovery_engine.carvers.audio_carver import scan_audio_in_chunk, extract_audio_metadata
@@ -279,11 +281,20 @@ def recover_universal(
     parse_fs: bool = True,
     check_crypto: bool = True,
     thermal_limit_c: int = 55,
+    webhook_url: Optional[str] = None,
+    telegram_token: Optional[str] = None,
+    telegram_chat_id: Optional[str] = None,
 ):
     """
     Universal Multi-Core Data Recovery Engine Main Workflow.
     """
     from recovery_engine.disk_io import interactive_select_destination
+
+    notifier = AlertNotifier(
+        webhook_url=webhook_url,
+        telegram_token=telegram_token,
+        telegram_chat_id=telegram_chat_id
+    )
 
     target_dates = target_dates or set()
     min_size_bytes = parse_size_str(min_size)
@@ -562,16 +573,34 @@ def recover_universal(
             bad_sectors_count=len(reader.bad_sectors),
             smart_status=smart_str
         )
+        pdf_path = generate_forensic_pdf_report(
+            extracted_records,
+            output_dir,
+            source_device=source_device,
+            smart_status=smart_str
+        )
 
         print(f"{t('out_folder')}{os.path.abspath(output_dir)}")
         print(f"{t('out_gallery')}{os.path.abspath(html_path)}")
         print(f"{t('out_report')}{os.path.abspath(csv_path)}")
         print(f"[*] Forensic Manifest (ISO 27037)  : {os.path.abspath(manifest_path)}")
+        print(f"[*] Formal Case PDF Report (ISO)   : {os.path.abspath(pdf_path)}")
         if deduplicator.duplicate_count > 0:
             print(t("out_dedup_stat", count=deduplicator.duplicate_count))
         if reader.bad_sectors:
             print(f"{t('out_bad_sectors')}{os.path.abspath(reader.bad_sector_log_file)}")
         print("=" * 80 + "\n")
+
+        # Dispatch Alert Notification
+        total_extracted_mb = sum(r.get("size_bytes", 0) for r in extracted_records) / (1024 * 1024)
+        notifier.notify_recovery_complete(
+            source_device=source_device,
+            total_files=len(extracted_records),
+            total_mb=total_extracted_mb,
+            duration_sec=total_elapsed,
+            sensitive_count=sens_count,
+            bad_sectors_count=len(reader.bad_sectors)
+        )
 
         # Clean up checkpoint upon complete recovery
         if os.path.exists(checkpoint_file):

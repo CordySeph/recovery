@@ -220,9 +220,31 @@ def main():
     parser.add_argument("--no-crypto", action="store_true", help="Disable pre-scan encrypted volume check")
     parser.add_argument("--types", type=str, default="", help="Comma-separated file extensions (e.g. jpg,png,mp4,mp3,pdf,docx,cctv)")
     parser.add_argument("--dates", type=str, default="", help="CCTV Target dates (e.g. 2026-09-06,2026-09-07)")
+    parser.add_argument("--gui", action="store_true", help="Launch Modern Native Desktop GUI Application")
+    parser.add_argument("--batch-devices", type=str, default="", help="Comma-separated physical drives for concurrent batch recovery")
+    parser.add_argument("--notify-webhook", type=str, default="", help="Webhook URL for Discord / generic alert notifications")
+    parser.add_argument("--telegram-token", type=str, default="", help="Telegram Bot API Token")
+    parser.add_argument("--telegram-chat", type=str, default="", help="Telegram Chat ID")
     parser.add_argument("--cores", type=int, default=DEFAULT_CORES, help=f"CPU cores to use (default: {DEFAULT_CORES})")
 
     args = parser.parse_args()
+
+    if args.gui:
+        try:
+            from gui_app import start_gui
+            start_gui()
+            sys.exit(0)
+        except Exception as e:
+            print(f"[!] Failed to launch GUI: {e}")
+            sys.exit(1)
+
+    if args.batch_devices:
+        from recovery_engine.batch_runner import run_batch_recovery
+        dev_list = [d.strip() for d in args.batch_devices.split(",") if d.strip()]
+        out_base = args.output or "./recovered_batch_data"
+        enabled = set().union(*FILE_CATEGORIES.values()) if args.all else FILE_CATEGORIES["images"]
+        run_batch_recovery(dev_list, out_base, enabled, cores_per_disk=max(2, args.cores // max(1, len(dev_list))))
+        sys.exit(0)
 
     if args.lang:
         set_language(args.lang)
@@ -376,6 +398,9 @@ def main():
         parse_fs=not args.no_fs,
         check_crypto=not args.no_crypto,
         thermal_limit_c=args.thermal_limit,
+        webhook_url=args.notify_webhook,
+        telegram_token=args.telegram_token,
+        telegram_chat_id=args.telegram_chat,
     )
 
     # If remote SFTP sync requested

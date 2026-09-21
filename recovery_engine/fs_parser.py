@@ -320,4 +320,12 @@ def scan_filesystem_structures_in_chunk(chunk: bytes, base_offset: int) -> List[
             continue
         pos += 512
 
+    # 4. Search for Apple APFS Containers & Volumes
+    try:
+        from recovery_engine.apfs_parser import scan_apfs_structures_in_chunk
+        apfs_recs = scan_apfs_structures_in_chunk(chunk, base_offset)
+        results.extend(apfs_recs)
+    except Exception:
+        pass
+
     return results

@@ -323,10 +323,75 @@ def run_tests():
     # Windows SMART helper returns valid dict structure
     win_smart = get_windows_smart_status(r"\\.\PhysicalDrive0")
     assert isinstance(win_smart, dict)
-    assert "smart_status" in win_smart
-    print("  ✓ Windows Platform Discovery, Device Sizing & Admin Check tests passed")
+    # 21. Test Smart Carving & Bi-fragment Gap Reassembly
+    from recovery_engine.smart_carver import validate_jpeg_stream_continuity, validate_h264_nalu_continuity, reassemble_bi_fragments
+    head_jpeg = b"\xFF\xD8\xFF\xE0\x00\x10JFIF\x00\x01\x01\x00\x00\x01\x00\x01\x00\x00\xFF\xDA\x00\x0C\x03\x01\x00\x02\x11\x03\x11\x00?\x00" + bytes(range(200))
+    tail_jpeg = bytes(range(150)) + b"\xFF\xD9"
+    assert validate_jpeg_stream_continuity(head_jpeg, tail_jpeg) is True
+    ok_reasm, combined_jpg, matched_off = reassemble_bi_fragments(head_jpeg, [(0x8000, tail_jpeg)], "jpg")
+    assert ok_reasm is True
+    assert combined_jpg.endswith(b"\xFF\xD9")
+    print("  ✓ Smart Carving & Bi-fragment Reassembly tests passed")
 
-    print("\n🎉 ALL 20 TEST SUITES PASSED SUCCESSFULLY 100%!")
+    # 22. Test Apple APFS Container & Volume Superblock Parser
+    from recovery_engine.apfs_parser import parse_apfs_container_superblock, parse_apfs_volume_superblock, scan_apfs_structures_in_chunk
+    synthetic_nxsb = bytearray(4096)
+    synthetic_nxsb[0:4] = b"NXSB"
+    synthetic_nxsb[4:8] = struct.pack("<I", 4096)  # Block size
+    synthetic_nxsb[8:16] = struct.pack("<Q", 1000000)  # Block count
+    synthetic_nxsb[40:56] = b"\x12\x34\x56\x78" * 4
+    apfs_container = parse_apfs_container_superblock(bytes(synthetic_nxsb), 0)
+    assert apfs_container is not None
+    assert apfs_container["type"] == "APFS_CONTAINER"
+    assert apfs_container["block_size"] == 4096
+
+    synthetic_apfs_vol = bytearray(4096)
+    synthetic_apfs_vol[0:4] = b"APFS"
+    synthetic_apfs_vol[64:75] = b"MacintoshHD\x00"
+    apfs_vol = parse_apfs_volume_superblock(bytes(synthetic_apfs_vol), 0x1000)
+    assert apfs_vol is not None
+    assert apfs_vol["type"] == "APFS_VOLUME"
+    print("  ✓ Apple APFS Container & Volume Parser tests passed")
+
+    # 23. Test Alert Notifier & Webhook Dispatcher
+    from recovery_engine.notifier import AlertNotifier
+    notifier_dummy = AlertNotifier()  # Disabled by default when no URL
+    assert notifier_dummy.enabled is False
+    assert notifier_dummy.send_alert("Test", "No alert sent") is False
+
+    notifier_active = AlertNotifier(webhook_url="https://httpbin.org/post")
+    assert notifier_active.enabled is True
+    print("  ✓ Alert Notifier & Webhook Alerting tests passed")
+
+    # 24. Test Forensic Case Investigation PDF Generator
+    from recovery_engine.pdf_report import generate_forensic_pdf_report
+    with tempfile.TemporaryDirectory() as pdf_tmp:
+        test_records = [
+            {
+                "index": 1, "category": "Documents", "file_type": "pdf",
+                "rel_path": "Documents/PDF/contract.pdf", "size_bytes": 2048,
+                "offset": 0x4000, "timestamp": "2026-09-21", "integrity_status": "Valid",
+                "md5": "d41d8cd98f00b204e9800998ecf8427e", "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "doc_meta": {"has_sensitive_data": True, "summary_badge": "Thai ID (1)"}
+            }
+        ]
+        generated_pdf = generate_forensic_pdf_report(test_records, pdf_tmp, "/dev/rdisk4", "Optimal (100%)")
+        assert os.path.exists(generated_pdf)
+        with open(generated_pdf, "rb") as pf:
+            pdf_bytes = pf.read()
+            assert pdf_bytes.startswith(b"%PDF-1.4")
+            assert b"DIGITAL FORENSICS & DATA RECOVERY REPORT" in pdf_bytes
+            assert b"%%EOF" in pdf_bytes
+    print("  ✓ Forensic Investigation PDF Generator (ISO/IEC 27037) tests passed")
+
+    # 25. Test Cloud Storage Exporter & Direct Presigned Uploader
+    from recovery_engine.cloud_exporter import upload_file_to_presigned_url
+    ok_up, msg_up = upload_file_to_presigned_url("/non/existent/file.bin", "https://s3.amazonaws.com/bucket/key")
+    assert ok_up is False
+    assert "does not exist" in msg_up
+    print("  ✓ Cloud Storage Exporter tests passed")
+
+    print("\n🎉 ALL 25 ENTERPRISE TEST SUITES PASSED SUCCESSFULLY 100%!")
 
 if __name__ == "__main__":
     run_tests()

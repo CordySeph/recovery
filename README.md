@@ -25,6 +25,13 @@
   - [แนวทางที่ 12: การส่งไฟล์ขึ้น Remote Server / NAS อัตโนมัติ (`--sftp-upload`)](#แนวทางที่-12-การส่งไฟล์ขึ้น-remote-server--nas-อัตโนมัติ---sftp-upload)
   - [แนวทางที่ 13: การกู้ข้อมูลกล้องวงจรปิด Xiongmai H.264 เฉพาะทาง (`cctv_recover.py`)](#แนวทางที่-13-การกู้ข้อมูลกล้องวงจรปิด-xiongmai-h264-เฉพาะทาง-cctv_recoverpy)
   - [แนวทางที่ 14: การนำไปใช้งานบนเครื่องที่ไม่มี Python (Standalone Portable Executable)](#แนวทางที่-14-การนำไปใช้งานบนเครื่องที่ไม่มี-python-standalone-portable-executable)
+  - [แนวทางที่ 15: โปรแกรม Desktop GUI ใช้งานง่าย 1-Click Recovery (`gui_app.py` / `--gui`)](#แนวทางที่-15-โปรแกรม-desktop-gui-ใช้งานง่าย-1-click-recovery-gui_apppy---gui)
+  - [แนวทางที่ 16: การกู้คืนพร้อมกันหลายไดรฟ์แบบ Batch Recovery (`--batch-devices`)](#แนวทางที่-16-การกู้คืนพร้อมกันหลายไดรฟ์แบบ-batch-recovery---batch-devices)
+  - [แนวทางที่ 17: ระบบต่อไฟล์กระจัดกระจายอัจฉริยะ (Smart Carving & Fragment Reassembly)](#แนวทางที่-17-ระบบต่อไฟล์กระจัดกระจายอัจฉริยะ-smart-carving--fragment-reassembly)
+  - [แนวทางที่ 18: ระบบวิเคราะห์พาร์ติชัน macOS Apple APFS Container (`NXSB`)](#แนวทางที่-18-ระบบวิเคราะห์พาร์ติชัน-macos-apple-apfs-container-nxsb)
+  - [แนวทางที่ 19: การแจ้งเตือนสถานะแบบ Real-Time ผ่าน Discord / Telegram / Webhook](#แนวทางที่-19-การแจ้งเตือนสถานะแบบ-real-time-ผ่าน-discord--telegram--webhook)
+  - [แนวทางที่ 20: รายงานสรุปผลนิติวิทยาศาสตร์รูปแบบ PDF สากล (`forensic_case_report.pdf`)](#แนวทางที่-20-รายงานสรุปผลนิติวิทยาศาสตร์รูปแบบ-pdf-สากล-forensic_case_reportpdf)
+  - [แนวทางที่ 21: การส่งออกไฟล์กู้ได้ขึ้น Cloud Storage (AWS S3 / GCS / Cloudflare R2)](#แนวทางที่-21-การส่งออกไฟล์กู้ได้ขึ้น-cloud-storage-aws-s3--gcs--cloudflare-r2)
 - [🌐 ระบบ 2 ภาษา (Bilingual UI: English Default / Thai)](#-ระบบ-2-ภาษา-bilingual-ui-english-default--thai)
 - [🛡️ ระบบทนทานต่อ Bad Sector & โหมดทำสำเนาดิสก์ (Forensic Disk Imaging)](#️-ระบบทนทานต่อ-bad-sector--โหมดทำสำเนาดิสก์-forensic-disk-imaging)
 - [🗂️ โครงสร้างโฟลเดอร์ผลลัพธ์ (Output Directory Structure)](#️-โครงสร้างโฟลเดอร์ผลลัพธ์-output-directory-structure)
@@ -238,6 +245,13 @@ python recover.py --serve D:\recovered_data --port 8080
 | `--ref-video` | ระบุไฟล์วิดีโออ้างอิงสำหรับใช้ซ่อมแซม `moov` atom | `--ref-video good_sample.mp4` |
 | `--sftp-upload` | ซิงค์ไฟล์กู้ได้ขึ้น Remote SFTP/NAS อัตโนมัติ | `--sftp-upload user@nas:/volume1/backup` |
 | `--thermal-limit` | กำหนดอุณหภูมิดิสก์สูงสุด (°C) ก่อนระบบพักเครื่อง | `--thermal-limit 55` |
+| `--gui` | เปิดหน้าต่างโปรแกรมแบบ Desktop Graphic Interface (Tkinter GUI) | `--gui` |
+| `--batch-devices` | กู้คืนพร้อมกันหลายไดรฟ์/อิมเมจ (คั่นด้วยจุลภาค) | `--batch-devices "\\.\PhysicalDrive1,\\.\PhysicalDrive2"` |
+| `--notify-webhook`| แจ้งเตือนสถานะเรียลไทม์เข้า Discord / Webhook URL | `--notify-webhook https://discord.com/api/webhooks/...` |
+| `--telegram-token`| กำหนด Token ของ Telegram Bot สำหรับแจ้งเตือน | `--telegram-token 123456:ABC-DEF...` |
+| `--telegram-chat` | กำหนด Chat ID ของ Telegram สำหรับรับแจ้งเตือน | `--telegram-chat 987654321` |
+| `--pdf-report` | บังคับสร้างเอกสารรายงานนิติวิทยาศาสตร์รูปแบบ PDF สากล | `--pdf-report` |
+| `--cloud-export` | ส่งออกไฟล์กู้ได้ขึ้น Cloud Storage (S3/GCS/R2) ผ่าน Presigned URL | `--cloud-export https://bucket.s3.amazonaws.com/case.zip?...` |
 
 #### ตัวอย่างคำสั่งที่ใช้บ่อย (Common Commands):
 
@@ -481,6 +495,113 @@ chmod +x build_standalone.sh
 
 ---
 
+### แนวทางที่ 15: โปรแกรม Desktop GUI ใช้งานง่าย 1-Click Recovery (`gui_app.py` / `--gui`)
+
+สำหรับผู้ใช้งานที่ต้องการหน้าต่างโปรแกรมแบบกราฟิกสวยงาม ใช้งานง่าย ไม่ต้องพิมพ์คำสั่งใน Terminal:
+
+```bash
+# เปิดใช้งาน GUI โดยตรง
+python3 gui_app.py
+
+# หรือเปิดผ่านคำสั่ง recover.py
+python3 recover.py --gui
+```
+
+* **ฟีเจอร์เด่นของ Desktop GUI**:
+  - 🖥️ **Live Sector Heatmap Canvas**: แสดงแผนภูมิสแกนเซกเตอร์แบบ Real-time บนหน้าจอ (สีเขียว = ข้อมูลปกติ, สีส้ม = พบไฟล์, สีแดง = Bad Sector)
+  - 🩺 **1-Click S.M.A.R.T. Health Test**: ปุ่มกดตรวจสุขภาพดิสก์ทันที พร้อมแถบวัดคะแนนสุขภาพและประเมินความเสี่ยง
+  - 📂 **หมวดหมู่ไฟล์แบบ Checkbox**: เลือกติ๊กประเภทไฟล์ที่ต้องการกู้ได้สะดวก (All, Photos, RAW Photos, Videos, Documents, Archives, Graphics, Audio, Database, Virtual Disks, Code)
+  - 📊 **Real-time Progress & ETA**: แสดงความเร็วการสแกน (MB/s), จำนวนไฟล์ที่ตรวจพบ, ปริมาณข้อมูลที่อ่านแล้ว และเวลาคงเหลือ
+  - 🌐 **Full Thai/English Support**: สลับภาษาของหน้าต่างโปรแกรมได้ทันที
+
+---
+
+### แนวทางที่ 16: การกู้คืนพร้อมกันหลายไดรฟ์แบบ Batch Recovery (`--batch-devices`)
+
+รองรับการกู้ข้อมูลหรือประมวลผลไฟล์ Disk Image หลายลูกพร้อมกันแบบขนาน (Concurrent Multi-Device Acquisition):
+
+```bash
+# บน Windows: กู้ข้อมูลจาก Flash Drive 2 ตัวพร้อมกัน
+python recover.py --batch-devices "\\.\PhysicalDrive1,\\.\PhysicalDrive2" --all -o D:\batch_recovered -y
+
+# บน macOS / Linux: กู้จากไฟล์อิมเมจหลายไฟล์พร้อมกัน
+sudo python3 recover.py --batch-devices "./evidence_sdcard.raw,./evidence_usb.dd" --all -o ./batch_recovered -y
+```
+
+* แต่ละไดรฟ์จะถูกแยกการทำงานเป็น Process อิสระ ไม่หน่วงความเร็วกัน
+* มีระบบสรุปผลรวม (Batch Summary Report) แสดงรายการสถานะและจำนวนไฟล์ที่กู้ได้ของทุกอุปกรณ์
+
+---
+
+### แนวทางที่ 17: ระบบต่อไฟล์กระจัดกระจายอัจฉริยะ (Smart Carving & Fragment Reassembly)
+
+ในกรณีที่ดิสก์ถูกใช้งานมาอย่างยาวนาน ข้อมูลของไฟล์อาจถูกบันทึกแบบกระจัดกระจาย (File Fragmentation) ข้าม Cluster/Block:
+
+* **Bi-Fragment Gap Carving**: ระบบตรวจจับกรณีที่ Header ของไฟล์ (เช่น JPEG SOI `FF D8`) กับ Body ถูกคั่นด้วย Fragment ของไฟล์อื่น หรือมี Gap ข้อมูลคั่นกลาง
+* **JPEG Stream Validation**: ตรวจสอบ Marker Frame (`FF DA`, SOS) และความต่อเนื่องของ Huffman Tables จนถึง End of Image (`FF D9`)
+* **H.264 / AVC NAL Unit Continuity**: ตรวจสอบลำดับ NAL Unit Sequence (SPS `0x67` / PPS `0x68` / IDR Keyframe `0x65` / Slice `0x41`) เพื่อต่อวิดีโอที่แตกเป็นท่อนให้เล่นได้อย่างต่อเนื่องสมบูรณ์
+
+---
+
+### แนวทางที่ 18: ระบบวิเคราะห์พาร์ติชัน macOS Apple APFS Container (`NXSB`)
+
+รองรับการแกะโครงสร้าง Apple File System (APFS) ทั้งแบบ Standalone Partition และ Volume Container:
+
+* ตรวจจับ Apple Container Superblock Magic: `NXSB` (ทั้งที่ Offset 0 และ Offset 32)
+* อ่านค่า Block Size, Container UUID, Checksum Fletcher64 และดัชนี Volume Superblocks
+* สามารถระบุโครงสร้าง Partition และ Volume Entry ของเครื่อง Mac (macOS High Sierra จนถึง macOS Sonoma / Sequoia)
+
+---
+
+### แนวทางที่ 19: การแจ้งเตือนสถานะแบบ Real-Time ผ่าน Discord / Telegram / Webhook
+
+เมื่อต้องกู้ข้อมูลดิสก์ขนาดใหญ่ (1TB - 8TB) ที่ใช้เวลานาน สามารถตั้งค่าให้ระบบส่งข้อความแจ้งเตือนเข้าสมาร์ทโฟนทันทีที่เสร็จสิ้น:
+
+```bash
+# แจ้งเตือนเข้า Discord Webhook
+sudo python3 recover.py /dev/rdisk4 --all -o ./recovered_data --notify-webhook "https://discord.com/api/webhooks/YOUR_WEBHOOK_URL"
+
+# แจ้งเตือนเข้า Telegram Bot
+sudo python3 recover.py /dev/rdisk4 --all -o ./recovered_data --telegram-token "123456789:ABCDefghIJKlmnoPQRstuvw" --telegram-chat "987654321"
+```
+
+* **ข้อมูลที่ระบบแจ้งเตือน**:
+  - อุปกรณ์ต้นทาง (Source Device)
+  - จำนวนไฟล์ที่กู้สำเร็จทั้งหมด
+  - ปริมาณข้อมูลและขนาดรวม (GB/MB)
+  - ระยะเวลาที่ใช้ในการสแกน (Elapsed Time)
+  - สถานะ Bad Sector และคะแนนสุขภาพดิสก์
+
+---
+
+### แนวทางที่ 20: รายงานสรุปผลนิติวิทยาศาสตร์รูปแบบ PDF สากล (`forensic_case_report.pdf`)
+
+สร้างเอกสารรายงานทางการแพทย์/นิติวิทยาศาสตร์ดิจิทัลตามมาตรฐาน **ISO/IEC 27037** ในรูปแบบไฟล์ PDF สากล โดยไม่ต้องติดตั้ง Third-Party Library ภายนอก:
+
+```bash
+# บังคับสร้าง PDF Report ทันที
+sudo python3 recover.py /dev/rdisk4 --all -o ./recovered_data --pdf-report
+```
+
+* **รายละเอียดในเอกสาร PDF**:
+  - **Case Metadata**: วันที่และเวลา (UTC+7), รหัสคดี, อุปกรณ์พยานหลักฐาน, ผู้ตรวจพิสูจน์
+  - **Acquisition & Integrity**: บันทึกโหมดการอ่านแบบ Bitstream (Read-Only), สถานะ Write-Blocker, Bad Sector Map
+  - **Dual Checksum Evidence Table**: รายการตารางไฟล์หลักฐานพร้อมค่า MD5 และ SHA-256 Checksum แบบครบถ้วน
+  - **Certification of Evidence**: พื้นที่สำหรับลงลายมือชื่อพยานและผู้เชี่ยวชาญด้านนิติวิทยาศาสตร์ดิจิทัล
+
+---
+
+### แนวทางที่ 21: การส่งออกไฟล์กู้ได้ขึ้น Cloud Storage (AWS S3 / GCS / Cloudflare R2)
+
+สำหรับทีมผู้เชี่ยวชาญที่ต้องการส่งสำเนาไฟล์ที่กู้ได้และชุดรายงานขึ้น Cloud Object Storage ทันที:
+
+```bash
+# ส่งไฟล์ Archive และ Manifest ขึ้น S3 / GCS / R2 ผ่าน Presigned URL
+python3 recover.py /dev/rdisk4 --all -o ./recovered_data --cloud-export "https://my-forensic-bucket.s3.amazonaws.com/cases/case_001.zip?AWSAccessKeyId=..."
+```
+
+---
+
 ## 🌐 ระบบ 2 ภาษา (Bilingual UI: English Default / Thai)
 
 โปรแกรมรองรับการแสดงผลทั้งภาษาไทยและภาษาอังกฤษอย่างสมบูรณ์:
@@ -560,7 +681,8 @@ recovered_data/
 ├── Database/
 │   └── SQLITE/
 ├── recovery_report.csv                    # รายงาน Audit Log พร้อมค่า MD5 + SHA-256
-├── chain_of_custody.json                  # รายงานพยานหลักฐานมาตรฐาน ISO/IEC 27037
+├── chain_of_custody.json                  # รายงานพยานหลักฐานมาตรฐาน ISO/IEC 27037 (JSON)
+├── forensic_case_report.pdf               # เอกสารรายงานพยานหลักฐานฉบับทางการ (PDF 1.4)
 ├── gallery.html                           # หน้าเว็บแกลเลอรี พร้อม Sector Heatmap & Hex Viewer
 └── bad_sectors_map.log                    # บันทึกพิกัดเซกเตอร์ที่เสียหาย (ถ้ามี)
 ```
@@ -591,7 +713,7 @@ recovered_data/
   python3 test_engine.py
   ```
 
-* ครอบคลุมการทดสอบครบทั้ง **20 Test Suites (100% Passed)**:
+* ครอบคลุมการทดสอบครบทั้ง **25 Test Suites (100% Passed)**:
   1. `format_eta` & Write-Block Verification
   2. `parse_size_str` Size Parser
   3. `Deduplication` & Dual Hashing (MD5 + SHA-256)
@@ -612,6 +734,11 @@ recovered_data/
   18. Source Code Carvers (HTML, PY, SQL)
   19. Forensic Reporting (CSV, HTML Heatmap Gallery, ISO/IEC 27037 JSON Manifest)
   20. Cross-Platform Windows & Unix Subsystem (Drive Discovery, Win32 Device Sizing & Admin Privileges)
+  21. Smart Carving & Bi-fragment Gap Reassembly
+  22. Apple APFS Container Superblock (`NXSB`) & Volume Parser
+  23. Alert Notifier & Webhook Alerting (Discord / Telegram / Custom HTTP)
+  24. Forensic Investigation PDF Generator (ISO/IEC 27037 Pure-Python Binary Writer)
+  25. Cloud Storage Presigned URL Exporter (S3 / GCS / R2)
 
 ---
 
