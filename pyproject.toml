@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "recovery-engine"
+version = "2.0.0"
+description = "Universal Multi-Core Data Recovery Engine (Professional / Forensic Grade)"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "Data Recovery Team"}
+]
+keywords = ["data-recovery", "forensics", "file-carving", "cctv", "smart", "ntfs", "fat32", "ext4"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: System Administrators",
+    "Intended Audience :: Information Technology",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS :: MacOS X",
+    "Operating System :: Microsoft :: Windows",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: System :: Systems Administration",
+    "Topic :: System :: Recovery Tools",
+    "Topic :: Security :: Cryptography",
+]
+
+[project.scripts]
+universal-recover = "recover:main"
+cctv-recover = "cctv_recover:main"
+
+[tool.setuptools.packages.find]
+include = ["recovery_engine*"]

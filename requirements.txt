@@ -1,0 +1,12 @@
+# Universal Multi-Core Data Recovery Engine
+# Core engine requires ONLY Python 3.8+ Standard Library (Zero external dependencies needed!)
+# Optional dependencies below enhance specific deep-inspection capabilities:
+
+# Optional: Enhanced EXIF/TIFF parsing for exotic RAW formats
+# Pillow>=10.0.0
+
+# Optional: Video decoding & fast frame thumbnail generation
+# imageio>=2.30.0
+
+# Optional: Standalone executable binary building
+# pyinstaller>=6.0.0

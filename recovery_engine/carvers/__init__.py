@@ -1,0 +1,14 @@
+"""
+Specialized Carving Modules Package
+"""
+
+from recovery_engine.carvers.image_carver import scan_images_in_chunk, extract_exif_date
+from recovery_engine.carvers.video_carver import scan_videos_in_chunk, convert_h264_to_mp4
+from recovery_engine.carvers.doc_carver import scan_documents_in_chunk
+from recovery_engine.carvers.archive_carver import scan_archives_and_db_in_chunk
+from recovery_engine.carvers.audio_carver import scan_audio_in_chunk, extract_audio_metadata
+from recovery_engine.carvers.raw_carver import scan_raw_photos_in_chunk, parse_tiff_metadata
+from recovery_engine.carvers.graphics_carver import scan_graphics_in_chunk
+from recovery_engine.carvers.virtual_disk_carver import scan_virtual_disks_in_chunk
+from recovery_engine.carvers.email_carver import scan_emails_in_chunk
+from recovery_engine.carvers.code_carver import scan_code_in_chunk
